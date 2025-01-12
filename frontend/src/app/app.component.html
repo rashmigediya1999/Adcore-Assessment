@@ -1,0 +1,13 @@
+<mat-toolbar class="custom-toolbar" color="primary">
+  <button mat-button routerLink="/payments" routerLinkActive="active">
+    <span>View Payments</span>
+  </button>
+  <button mat-button routerLink="/payments/add" routerLinkActive="active">
+    <span>Add Payment</span>
+  </button>
+  <span class="spacer"></span>
+</mat-toolbar>
+
+<main>
+  <router-outlet></router-outlet>
+</main>

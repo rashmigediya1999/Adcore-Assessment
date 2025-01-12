@@ -1,0 +1,59 @@
+<mat-card class="payment-card">
+    <mat-card-header>
+      <mat-card-title>
+        {{ payment?.payee_first_name }} {{ payment?.payee_last_name }}
+      </mat-card-title>
+      <mat-card-subtitle>{{ payment?.payee_email }}</mat-card-subtitle>
+    </mat-card-header>
+  
+    <mat-card-content>
+      <!-- Payment Details Table -->
+      <mat-table [dataSource]="[payment]" class="payment-table mat-elevation-z4">
+        <!-- Payee Name Column -->
+        <ng-container matColumnDef="payee_name">
+          <mat-header-cell *matHeaderCellDef> Payee Name </mat-header-cell>
+          <mat-cell *matCellDef="let payment"> 
+            {{ payment?.payee_first_name }} {{ payment?.payee_last_name }} 
+          </mat-cell>
+        </ng-container>
+  
+        <!-- Due Amount Column -->
+        <ng-container matColumnDef="due_amount">
+          <mat-header-cell *matHeaderCellDef> Due Amount </mat-header-cell>
+          <mat-cell *matCellDef="let payment"> 
+            {{ payment?.due_amount | currency: payment?.currency }} 
+          </mat-cell>
+        </ng-container>
+  
+        <!-- Total Due Column -->
+        <ng-container matColumnDef="total_due">
+          <mat-header-cell *matHeaderCellDef> Total Due </mat-header-cell>
+          <mat-cell *matCellDef="let payment"> 
+            {{ payment?.total_due | currency: payment?.currency }} 
+          </mat-cell>
+        </ng-container>
+  
+        <!-- Payment Status Column -->
+        <ng-container matColumnDef="payment_status">
+          <mat-header-cell *matHeaderCellDef> Payment Status </mat-header-cell>
+          <mat-cell *matCellDef="let payment">
+            <span [ngClass]="getStatusClass(payment?.payee_payment_status)">
+              {{ payment?.payee_payment_status | titlecase }}
+            </span>
+          </mat-cell>
+        </ng-container>
+  
+        <!-- Table Header and Rows -->
+        <mat-header-row *matHeaderRowDef="['payee_name', 'due_amount', 'total_due', 'payment_status']"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: ['payee_name', 'due_amount', 'total_due', 'payment_status'];"></mat-row>
+      </mat-table>
+  
+      <!-- Back to List Button -->
+      <div class="back-button-container">
+        <button mat-raised-button color="accent" (click)="onBackToList()" class="back-btn">
+          Back to List
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  

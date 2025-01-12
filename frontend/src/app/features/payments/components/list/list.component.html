@@ -1,0 +1,58 @@
+<div class="form-container">
+  <mat-form-field appearance="fill">
+    <mat-label>Search</mat-label>
+    <input matInput [(ngModel)]="searchQuery" (ngModelChange)="onSearch()" placeholder="Search payee name" />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Status Filter</mat-label>
+    <mat-select [(ngModel)]="statusFilter" (selectionChange)="onFilter()">
+      <mat-option value="">All</mat-option>
+      <mat-option value="due_now">Due Now</mat-option>
+      <mat-option value="pending">Pending</mat-option>
+      <mat-option value="overdue">Overdue</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
+<mat-table [dataSource]="filteredPayments" class="mat-elevation-z8">
+  <ng-container matColumnDef="payee_name">
+    <mat-header-cell *matHeaderCellDef> Payee Name </mat-header-cell>
+    <mat-cell *matCellDef="let payment">{{ payment.payee_first_name }} {{ payment.payee_last_name }}</mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="due_amount">
+    <mat-header-cell *matHeaderCellDef> Due Amount </mat-header-cell>
+    <mat-cell *matCellDef="let payment">{{ payment.due_amount | currency: payment.currency }}</mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="total_due">
+    <mat-header-cell *matHeaderCellDef> Total Due </mat-header-cell>
+    <mat-cell *matCellDef="let payment">{{ payment.total_due | currency: payment.currency }}</mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="payment_status">
+    <mat-header-cell *matHeaderCellDef> Payment Status </mat-header-cell>
+    <mat-cell *matCellDef="let payment">
+      <span [ngClass]="getStatusClass(payment.payee_payment_status)">
+        {{ payment.payee_payment_status }}
+      </span>
+    </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
+    <mat-cell *matCellDef="let payment">
+      <button mat-button (click)="onView(payment)">View</button>
+      <button mat-button (click)="onEdit(payment)">Edit</button>
+      <button mat-button (click)="onDelete(payment)">Delete</button>
+    </mat-cell>
+  </ng-container>
+
+  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+</mat-table>
+
+<mat-paginator [length]="totalRecords" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
+  (page)="onPageChange($event)">
+</mat-paginator>

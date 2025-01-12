@@ -1,0 +1,43 @@
+<div class="edit-payment-container">
+    <mat-toolbar>Edit Payment</mat-toolbar>
+    <mat-card>
+      <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()">
+  
+        <!-- Due Date -->
+        <mat-form-field appearance="outline">
+          <mat-label>Due Date</mat-label>
+          <input matInput [matDatepicker]="dueDate" formControlName="due_date" />
+          <mat-datepicker #dueDate></mat-datepicker>
+          <mat-error *ngIf="paymentForm.get('due_date')?.invalid">Due Date is required</mat-error>
+        </mat-form-field>
+  
+        <!-- Due Amount -->
+        <mat-form-field appearance="outline">
+          <mat-label>Due Amount</mat-label>
+          <input matInput formControlName="due_amount" placeholder="Enter due amount" type="number" step="0.01" />
+          <mat-error *ngIf="paymentForm.get('due_amount')?.invalid">Due Amount is required</mat-error>
+        </mat-form-field>
+  
+        <!-- Status -->
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option value="pending">Pending</mat-option>
+            <mat-option value="due_now">Due Now</mat-option>
+            <mat-option value="completed">Completed</mat-option>
+          </mat-select>
+        </mat-form-field>
+  
+        <!-- Evidence -->
+        <mat-form-field appearance="outline" *ngIf="paymentForm.get('status')?.value === 'completed'">
+          <mat-label>Evidence</mat-label>
+          <input matInput formControlName="evidence" placeholder="Upload evidence" type="file" />
+          <mat-error *ngIf="paymentForm.get('evidence')?.invalid">Evidence is required when status is 'completed'</mat-error>
+        </mat-form-field>
+  
+        <!-- Submit -->
+        <button mat-raised-button color="primary" type="submit">Update Payment</button>
+      </form>
+    </mat-card>
+  </div>
+  
