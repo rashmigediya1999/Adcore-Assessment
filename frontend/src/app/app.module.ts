@@ -24,6 +24,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ViewPaymentComponent } from './features/payments/components/view-payment/view-payment.component';
 import { AddPaymentComponent } from './features/payments/components/add-payment/add-payment.component';
 import { EditPaymentComponent } from './features/payments/components/edit-payment/edit-payment.component';
+import { DeleteConfirmationDialogComponent } from './features/payments/components/delete-confirmation-dialog';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { EditPaymentComponent } from './features/payments/components/edit-paymen
     ListComponent,
     ViewPaymentComponent,
     AddPaymentComponent,
+    DeleteConfirmationDialogComponent,
     EditPaymentComponent
   ],
   imports: [

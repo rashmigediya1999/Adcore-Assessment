@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Payment } from '../../models/payment.model';
 import { Router } from "@angular/router";
 import { PaymentService } from '../../services/payment.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DeleteConfirmationDialogComponent } from '../delete-confirmation-dialog';
 
 @Component({
   selector: 'app-payment-list',
@@ -24,6 +26,7 @@ export class ListComponent implements OnInit {
   // constructor(private router: Router) {}
   constructor(
     private router: Router,
+    private dialog: MatDialog,
     private paymentService: PaymentService
   ) { }
 
@@ -111,6 +114,19 @@ export class ListComponent implements OnInit {
   }
 
   onDelete(payment: any): void {
+    const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
+      width: '400px',
+      data: payment
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.deletePayment(payment);
+      }
+    });
+  }
+
+  private deletePayment(payment: any): void {
     this.paymentService.deletePayment(payment._id)
     .subscribe(
         () => {
@@ -119,4 +135,5 @@ export class ListComponent implements OnInit {
         }
     );
   }
+ 
 }
