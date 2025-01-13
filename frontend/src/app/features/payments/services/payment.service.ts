@@ -14,7 +14,7 @@ export class PaymentService {
 
   // Get payments with pagination
   getPayments(page: number = 1, pageSize: number = 10, filters: any = {}): Observable<any> {
-    console.log('Filters:', filters);
+    
     let params = new HttpParams()
       .set('page', page.toString())
       .set('page_size', pageSize.toString());

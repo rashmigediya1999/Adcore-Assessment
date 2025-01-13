@@ -85,7 +85,7 @@
             <button mat-icon-button color="primary" matTooltip="View Details" (click)="onView(payment)">
               <mat-icon>visibility</mat-icon>
             </button>
-            <button mat-icon-button color="accent" matTooltip="Edit Payment" (click)="onEdit(payment)">
+            <button mat-icon-button color="accent" matTooltip="Edit Payment" (click)="onEdit(payment)" disabled="{{payment.payee_payment_status === 'completed'}}">
               <mat-icon>edit</mat-icon>
             </button>
             <button mat-icon-button color="warn" matTooltip="Delete Payment" (click)="onDelete(payment)">

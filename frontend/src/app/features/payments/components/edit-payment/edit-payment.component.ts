@@ -3,8 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PaymentService } from '../../services/payment.service';
 import { MatSnackBar } from '@angular/material/snack-bar';  
-
-
+import * as moment from 'moment';
 @Component({
   selector: 'app-edit-payment',
   templateUrl: './edit-payment.component.html',
@@ -21,7 +20,7 @@ export class EditPaymentComponent implements OnInit {
   paymentForm!: FormGroup;
   paymentId: string = '';
   currentPaymentData: any;  // Store the current payment data
-  readonly paymentStatuses = ['pending', 'due_now', 'completed'];
+  readonly paymentStatuses = ['pending', 'due_now', 'completed', 'overdue'];
   
 
   constructor(
@@ -34,6 +33,7 @@ export class EditPaymentComponent implements OnInit {
 
   ngOnInit(): void {
     this.paymentId = this.activatedRoute.snapshot.paramMap.get('id')!;  // Get the payment ID from the URL
+   
     this.paymentForm = this.fb.group({
       payee_first_name: [{ value: '', disabled: true }],
       payee_last_name: [{ value: '', disabled: true }],
@@ -50,7 +50,6 @@ export class EditPaymentComponent implements OnInit {
       discount_percent: [{ value: '', disabled: true }],
       tax_percent: [{ value: '', disabled: true }],
       due_amount: ['', [Validators.required, Validators.min(0)]],
-      due_date: ['', [Validators.required]],
       payee_payment_status: ['pending', Validators.required],
       evidence_file_url: [''],
       evidence_file_name: ['']
@@ -59,6 +58,7 @@ export class EditPaymentComponent implements OnInit {
     // Fetch the current payment data from the API
     this.paymentService.getPaymentById(this.paymentId).subscribe(
       (data) => {
+        
         this.currentPaymentData = data;
         this.paymentForm.patchValue({
           payee_first_name: data.payee_first_name,
@@ -76,7 +76,6 @@ export class EditPaymentComponent implements OnInit {
           discount_percent: data.discount_percent,
           tax_percent: data.tax_percent,
           due_amount: data.due_amount,
-          due_date: data.due_date,
           payee_payment_status: data.payee_payment_status,
           evidence_file_url: data.evidence_file_url || '',
         });
@@ -87,6 +86,7 @@ export class EditPaymentComponent implements OnInit {
       }
     );
 
+    
     this.paymentForm.get('payee_payment_status')?.valueChanges
     .subscribe(status => {
       if (status === 'Completed') {
@@ -127,24 +127,7 @@ export class EditPaymentComponent implements OnInit {
     const formData = new FormData();
     formData.append('file', this.selectedFile);
     formData.append('paymentId', this.paymentId);
-
-    // try {
-    //   this.paymentService.uploadEvidenceFile(formData).subscribe(
-    //     (evidence) => {
-    //       this.paymentForm.patchValue({
-    //         evidence_file_url: evidence.fileUrl,
-    //         evidence_file_name: evidence.fileName
-    //       });
-    //     },
-    //     (error) => {
-    //       console.error('Error uploading file:', error);
-    //       alert('Failed to upload file. Please try again.');
-    //     }
-    //   );
-    // } catch (error) {
-    //   console.error('Error uploading file:', error);
-    //   alert('Failed to upload file. Please try again.');
-    // }
+    
   }
 
   getFileIcon(fileType: string): string {
@@ -198,14 +181,20 @@ export class EditPaymentComponent implements OnInit {
     this.fileInput.nativeElement.value = '';
   }
 
+  
   // Form submission handler
   onSubmit(): void {
-
+    
     if (this.paymentForm.valid) {
-      const updatedPaymentData = this.paymentForm.value;
-
+      let updatedPaymentData = this.paymentForm.value;
+      updatedPaymentData = {
+        ...updatedPaymentData,
+        payee_due_date : moment(updatedPaymentData.payee_due_date).format('YYYY-MM-DDTHH:mm:ss[Z]') 
+      }
+      
       // Check if the status is 'completed' and evidence is provided
-      if (updatedPaymentData.status === 'completed' && !updatedPaymentData.evidence) {
+      if (updatedPaymentData.payee_payment_status === 'completed' && !this.selectedFile) {
+      
         this.snackBar.open('Please upload evidence before changing the status to completed.', 'Close', { duration: 3000 });
         return;
       }
@@ -232,6 +221,18 @@ export class EditPaymentComponent implements OnInit {
           this.snackBar.open('Error uploading file: ', 'Close', { duration: 4000 });
         }
       );
+    } else {
+      
+        // Call the service to update payment
+        this.paymentService.updatePayment(this.paymentId, updatedPaymentData).subscribe(
+          (response) => {
+            this.snackBar.open('Payment updated successfully!', 'Close', { duration: 3000 });
+            this.router.navigate(['/payments']); // Navigate to payments list or dashboard after successful update
+          },
+          (error) => {
+            this.snackBar.open('Failed to update payment. Please try again.', 'Close', { duration: 3000 });
+          }
+        );
     }
     
       

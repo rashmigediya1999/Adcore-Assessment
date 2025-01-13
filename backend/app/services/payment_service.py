@@ -41,7 +41,8 @@ class PaymentService:
 
             # Process payments
             for payment in payments:
-                self.calculate_total_due_and_status(payment)
+                self.calculate_total_due(payment)
+                self.calculate_status(payment)
 
             # Calculate pagination metadata
             total_pages = (total_count + page_size - 1) // page_size
@@ -61,7 +62,7 @@ class PaymentService:
             print(e)
             raise e
 
-    def calculate_total_due_and_status(self, payment: dict) -> None:
+    def calculate_status(self, payment: dict) -> None:
         today = datetime.now().date()
         due_date = datetime.strptime(payment["payee_due_date"], '%Y-%m-%dT%H:%M:%SZ').date()
         
@@ -72,20 +73,27 @@ class PaymentService:
                 payment["payee_payment_status"] = "overdue"
             else:
                 payment["payee_payment_status"] = "pending"
-            
+        
+    def calculate_total_due(self, payment: dict) -> None:
+       
         discount = payment.get("discount_percent", 0) / 100
         tax = payment.get("tax_percent", 0) / 100
+
         due_amount = payment["due_amount"]
         payment["total_due"] = due_amount * (1 - discount) * (1 + tax)
+            
+        
 
     async def get_payment(self, payment_id: str) -> dict:
         result = await self.repository.get_payment(payment_id)
         if result["status"] == "error":
             raise ValueError(result["message"])
-        self.calculate_total_due_and_status(result) 
+        self.calculate_total_due(result)
+        self.calculate_status(result) 
         return result
 
     async def update_payment(self, payment_id: str, update_data: dict, file_data: Optional[bytes] = None, filename: Optional[str] = None) -> Payment:
+        self.calculate_status(update_data)         
         updated_payment = await self.repository.update_payment(payment_id, update_data)
         if not updated_payment:
             raise ValueError("Payment not found")

@@ -101,7 +101,7 @@
               <mat-select formControlName="payee_payment_status" required
               >
                 
-                <mat-option *ngFor="let status of paymentStatuses" [value]="status">
+                <mat-option *ngFor="let status of paymentStatuses" [value]="status" [disabled]="status !== 'completed'">
                   {{status | titlecase}}
                 </mat-option>
               </mat-select>
@@ -109,12 +109,13 @@
                 Status is required
               </mat-error> -->
             </mat-form-field>
-
+            
             <mat-form-field appearance="outline">
               <mat-label>Due Date</mat-label>
               <input matInput [matDatepicker]="picker" 
-                     formControlName="due_date" required 
-                     >
+              formControlName="payee_due_date" required
+              >
+                     
               <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
               <mat-datepicker #picker></mat-datepicker>
               <!-- <mat-error *ngIf="paymentForm.get('due_date').errors?.required">
@@ -133,7 +134,6 @@
                       
               required
                      min="0" step="0.01">
-              <span matPrefix>{{currentPaymentData?.currency}} &nbsp;</span>
               <mat-error *ngIf="paymentForm.get('due_amount')?.errors?.['required']">
                 Amount is required
               </mat-error>
@@ -235,8 +235,8 @@
             <mat-icon>close</mat-icon>
             Cancel
           </button>
-          <button mat-raised-button color="primary" type="submit" 
-                  [disabled]="paymentForm.invalid">
+          <button mat-raised-button color="primary" type="submit">
+          >
             <mat-icon>save</mat-icon>
             Save Changes
           </button>

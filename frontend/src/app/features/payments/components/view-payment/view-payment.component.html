@@ -146,12 +146,12 @@
           </div>
           <div class="summary-item">
             <label>Tax</label>
-            <p>{{((payment?.due_amount ?? 0) * (payment?.tax_percent ?? 0) / 100) | currency:payment?.currency:'symbol':'1.2-2'}}</p>
+            <p>{{(((payment?.due_amount ?? 0) - ((payment?.due_amount ?? 0) * (payment?.discount_percent ?? 0) / 100)) * (payment?.tax_percent ?? 0) / 100) | currency:payment?.currency:'symbol':'1.2-2'}}</p>
           </div>
-          <!-- <div class="summary-item total">
+          <div class="summary-item total">
             <label>Total Amount</label>
-            <p>{{calculateTotal() | currency:payment?.currency:'symbol':'1.2-2'}}</p>
-          </div> -->
+            <p>{{payment?.total_due | currency:payment?.currency:'symbol':'1.2-2'}}</p>
+          </div>
         </div>
       </div>
     </mat-card-content>

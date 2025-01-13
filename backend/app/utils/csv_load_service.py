@@ -3,6 +3,7 @@ from pydantic import ValidationError
 from app.db.mongodb import MongoDB
 from app.models.payment import Payment
 from app.core.logging import Logger
+from datetime import datetime
 
 
 async def load_and_normalize_csv_data(file_path: str, collection_name: str):
@@ -21,9 +22,19 @@ async def load_and_normalize_csv_data(file_path: str, collection_name: str):
     # Normalize data (example: ensure all fields conform to the schema)
     df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
     
-    # Convert date columns to UTC timestamps and then to string
+    # # Convert date columns to UTC timestamps and then to string
     df["payee_due_date"] = pd.to_datetime(df["payee_due_date"], utc=True).dt.strftime('%Y-%m-%dT%H:%M:%SZ')
     
+    # Convert the `payee_due_date` column to datetime and format it correctly
+    # df["payee_due_date"] = pd.to_datetime(df["payee_due_date"], utc=True)
+
+    # Get today's date in UTC for comparison
+    today = datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
+
+    # Update `payee_payment_status` based on conditions
+    df["payee_payment_status"] = df["payee_due_date"].apply(
+        lambda x: "due_now" if x == today else "overdue" if x < today else df["payee_payment_status"]
+    )
     # Convert postal code to string
     df["payee_postal_code"] = df["payee_postal_code"].astype(str)
     df["payee_phone_number"] = df["payee_phone_number"].astype(str)

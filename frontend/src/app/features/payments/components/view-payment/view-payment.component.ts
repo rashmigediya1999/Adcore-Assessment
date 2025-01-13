@@ -30,6 +30,7 @@ export class ViewPaymentComponent implements OnInit {
     // Fetch payment details from the service
     if (this.paymentId) {
       this.paymentService.getPaymentById(this.paymentId).subscribe((data) => {
+        console.log("Data", data)
         this.payment = data;
       });
     }
