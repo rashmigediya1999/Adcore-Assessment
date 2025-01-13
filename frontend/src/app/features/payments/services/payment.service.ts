@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Payment } from '../models/payment.model';
 
@@ -13,9 +13,20 @@ export class PaymentService {
   constructor(private http: HttpClient) { }
 
   // Get payments with pagination
-  getPayments(page: number = 1, pageSize: number = 10): Observable<any> {
-    const url = `${this.apiUrl}/payments/?page=${page}&page_size=${pageSize}`;
-    return this.http.get<any>(url);
+  getPayments(page: number = 1, pageSize: number = 10, filters: any = {}): Observable<any> {
+    console.log('Filters:', filters);
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('page_size', pageSize.toString());
+
+      for (const key in filters) {
+        if (filters.hasOwnProperty(key)) {
+          params = params.set(key, filters[key]);
+        }
+      }
+    // Append filters to the query parameters
+    const url = `${this.apiUrl}/payments`;
+    return this.http.get<any>(url, { params });
   }
 
   // Fetch a single payment by ID
@@ -31,6 +42,7 @@ export class PaymentService {
 
   // Create a new payment
   addPayment(payment: Payment): Observable<Payment> {
+    console.log('Payment:', payment);
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });  
     return this.http.post<Payment>(`${this.apiUrl}/payment`, payment, { headers });
   }
@@ -38,5 +50,16 @@ export class PaymentService {
   // Delete a payment
   deletePayment(paymentId: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/payment/${paymentId}`);
+  }
+
+  uploadEvidenceFile(paymentId: string, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.apiUrl}/payment/${paymentId}/upload_evidence`, formData);
+  }
+  downloadEvidenceFile(fileId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/payment/download_evidence/${fileId}`, {
+      responseType: 'blob',
+    });
   }
 }

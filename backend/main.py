@@ -22,13 +22,15 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    
+
 
     # Setup logging
     Logger.setup_logging()
 
     # Register startup and shutdown events
     app.add_event_handler("startup", MongoDB.connect)
-    # app.add_event_handler("startup", load_csv_data)
+    app.add_event_handler("startup", load_csv_data)
     app.add_event_handler("shutdown", MongoDB.close)
 
     # Register routes
@@ -41,7 +43,7 @@ def create_app() -> FastAPI:
 async def load_csv_data():
     try:
         file_path = settings.config["data"]["file_path"]
-        collection_name = settings.config["mongodb"]["database"]
+        collection_name = settings.config["mongodb"]["collections"]["payments"]
 
         logger.info(f"Loading data from '{file_path}'")    
         await load_and_normalize_csv_data(file_path, collection_name)
@@ -50,7 +52,6 @@ async def load_csv_data():
 
 app = create_app()
 logger = Logger.get_logger(__name__)
-logger.info(f"added ") 
 
 
 if __name__ == "__main__":

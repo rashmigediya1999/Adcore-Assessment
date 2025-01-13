@@ -12,8 +12,6 @@ server:
   workers: 4
   origins:
     - "*"
-    - "http://localhost:4200"
-    
 mongodb:
   uri: "mongodb+srv://rashmi:rashmi@payment-system.9hrxs.mongodb.net/?retryWrites=true&w=majority&appName=payment-system"
   database: "payment_system"
@@ -22,6 +20,7 @@ mongodb:
   timeout_ms: 5000
   collections:
     payments: "payments"
+    upload_evidence: "upload_evidence"
 
 logging:
   version: 1

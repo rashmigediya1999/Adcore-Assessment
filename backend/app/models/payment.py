@@ -10,9 +10,9 @@ class Payment(BaseModel):
     id: Optional[str] = Field(default_factory=lambda: str(ObjectId()), alias="_id")
     payee_first_name: str
     payee_last_name: str
-    payee_payment_status: PaymentStatus
-    payee_added_date_utc: str
-    payee_due_date: str
+    payee_payment_status: PaymentStatus = Field(default=PaymentStatus.PENDING)
+    payee_added_date_utc: str = Field(default_factory=lambda: datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'))
+    payee_due_date: str = Field(default_factory=lambda: datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'))
     payee_address_line_1: str
     payee_address_line_2: Optional[str] = None
     payee_city: str
@@ -24,7 +24,7 @@ class Payment(BaseModel):
     currency: str
     discount_percent: Optional[float] = Field(None, ge=0, le=100)
     tax_percent: Optional[float] = Field(None, ge=0, le=100)
-    due_amount: float = Field(..., ge=0)
+    due_amount: float = Field(default=0, ge=0) 
     total_due: Optional[float] = None
     evidence_file_url: Optional[str] = None
 

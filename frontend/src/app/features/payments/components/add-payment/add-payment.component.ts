@@ -11,9 +11,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class AddPaymentComponent implements OnInit {
   paymentForm!: FormGroup;
 
-  constructor(private fb: FormBuilder,
-    private paymentService : PaymentService,
-    private snackBar : MatSnackBar
+  constructor(
+    private fb: FormBuilder,
+    private paymentService: PaymentService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -36,17 +37,44 @@ export class AddPaymentComponent implements OnInit {
     });
   }
 
+  resetForm(): void {
+    this.paymentForm.reset({
+      payee_first_name: '',
+      payee_last_name: '',
+      payee_due_date: '',
+      payee_address_line_1: '',
+      payee_address_line_2: '',
+      payee_city: '',
+      payee_province_or_state: '',
+      payee_country: '',
+      payee_postal_code: '',
+      payee_phone_number: '',
+      payee_email: '',
+      currency: '',
+      discount_percent: '',
+      tax_percent: '',
+      due_amount: '',
+    });
+
+    // Mark all controls as pristine and untouched to clear validation errors
+    Object.keys(this.paymentForm.controls).forEach(key => {
+      this.paymentForm.get(key)?.markAsPristine();
+      this.paymentForm.get(key)?.markAsUntouched();
+    });
+  }
+
   onSubmit(): void {
     if (this.paymentForm.valid) {
       const paymentData = this.paymentForm.value;
+
+      console.log('Payment data:', paymentData);
 
       // Call the service to add payment
       this.paymentService.addPayment(paymentData).subscribe(
         (response) => {
           // Handle success
-          console.log('Payment added successfully:', response);
           this.snackBar.open('Payment added successfully!', 'Close', { duration: 3000 });
-          this.paymentForm.reset(); // Reset the form after successful submission
+          this.resetForm(); // Reset the form after successful submission
         },
         (error) => {
           // Handle error

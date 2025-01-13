@@ -56,7 +56,6 @@ async def load_and_normalize_csv_data(file_path: str, collection_name: str):
             data.append(record.dict(by_alias=True))
         except ValidationError as e:
             print(f"Validation failed for row: {row.to_dict()} - {e}")
+            
     # Save normalized data into MongoDB
     await MongoDB.db[collection_name].insert_many(data)
-
-    logger.info(f"data added successfully")

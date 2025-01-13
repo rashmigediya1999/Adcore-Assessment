@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Payment } from '../../models/payment.model';
 import { Router } from "@angular/router";
 import { PaymentService } from '../../services/payment.service';
-import { catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
 
 @Component({
   selector: 'app-payment-list',
@@ -33,10 +31,24 @@ export class ListComponent implements OnInit {
     this.fetchPayments();
   }
 
+  getFilters(): any {
+    const filters: any = {};
+
+    if (this.searchQuery) {
+      filters.search_payee_name = this.searchQuery;
+    }
+
+    if (this.statusFilter) {
+      filters.payee_payment_status = this.statusFilter;
+    }
+
+    return filters;
+  }
+
   // Fetch payments from server (replace with API call)
   fetchPayments(): void {
-    // Mock data for example; replace with actual API response
-    this.paymentService.getPayments(this.currentPage, this.pageSize)
+    const filters = this.getFilters();
+    this.paymentService.getPayments(this.currentPage, this.pageSize, filters)
       .subscribe(
           (payments) => {
             this.payments = payments?.items;
@@ -54,14 +66,19 @@ export class ListComponent implements OnInit {
   // Search handler
   onSearch(): void {
     this.currentPage = 1; // Reset to first page when searching
+
+    this.fetchPayments();
     this.applyFilters();
   }
 
   // Filter handler
   onFilter(): void {
     this.currentPage = 1;
+    
+    this.fetchPayments();
     this.applyFilters();
   }
+  
 
   // Reset filters
   onResetFilters(): void {
@@ -75,6 +92,7 @@ export class ListComponent implements OnInit {
   onPageChange(event: any): void {
     this.currentPage = event.pageIndex + 1;
     this.pageSize = event.pageSize;
+    this.fetchPayments();
     this.applyFilters();
   }
 
@@ -85,24 +103,18 @@ export class ListComponent implements OnInit {
 
   // Navigate to view payment page
   onView(payment: Payment): void {
-    this.router.navigate(['/payments', payment._id]);
+    this.router.navigate(['/payment/view', payment._id]);
   }
 
   onEdit(payment: Payment): void {
-    this.paymentService.updatePayment(payment._id, payment)
-    .subscribe(
-        () => {
-          this.applyFilters();
-        }
-    );
+    this.router.navigate(['/payment/edit', payment._id]);
   }
 
   onDelete(payment: any): void {
-    console.log('Deleting payment:', payment);
-    console.log('Deleting payment:', payment._id);
     this.paymentService.deletePayment(payment._id)
     .subscribe(
         () => {
+          this.fetchPayments();
           this.applyFilters();
         }
     );
